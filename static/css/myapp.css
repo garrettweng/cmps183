@@ -1,0 +1,97 @@
+/* line 1, ../sass/_main.scss */
+.colorful {
+  color: #bb8833;
+}
+
+/* line 5, ../sass/_main.scss */
+h1, h2, h3 {
+  color: #3748bb;
+}
+
+/* line 9, ../sass/_main.scss */
+div.maincontent {
+  color: #666;
+  line-height: 130%;
+}
+
+/* line 17, ../sass/_main.scss */
+div.buttons .signin {
+  horiz-align: center;
+}
+
+/* line 22, ../sass/_main.scss */
+div.myboard {
+  padding: 10px;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U2ZTZlNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2NjY2NjYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e6e6e6), color-stop(100%, #cccccc));
+  background-image: -moz-linear-gradient(#e6e6e6, #cccccc);
+  background-image: -webkit-linear-gradient(#e6e6e6, #cccccc);
+  background-image: linear-gradient(#e6e6e6, #cccccc);
+  margin: 10px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #666;
+  display: inline-block;
+}
+/* line 30, ../sass/_main.scss */
+div.myboard .boardtitle {
+  font-size: 1.6em;
+  color: #3748bb;
+}
+/* line 34, ../sass/_main.scss */
+div.myboard .boardinfo {
+  font-size: 1.2em;
+  color: #3748bb;
+}
+
+/* line 40, ../sass/_main.scss */
+div.mypost {
+  padding: 10px;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U2ZTZlNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2NjY2NjYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e6e6e6), color-stop(100%, #cccccc));
+  background-image: -moz-linear-gradient(#e6e6e6, #cccccc);
+  background-image: -webkit-linear-gradient(#e6e6e6, #cccccc);
+  background-image: linear-gradient(#e6e6e6, #cccccc);
+  margin: 10px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #666;
+  display: inline-block;
+}
+/* line 48, ../sass/_main.scss */
+div.mypost .posttitle {
+  font-size: 1.6em;
+  color: #3748bb;
+}
+/* line 52, ../sass/_main.scss */
+div.mypost .posttitle {
+  font-size: 1.2em;
+  color: #3748bb;
+}
+/* line 56, ../sass/_main.scss */
+div.mypost .postinfo {
+  font-size: 0.8em;
+  color: #3748bb;
+}
+
+/* line 62, ../sass/_main.scss */
+span.entry {
+  align-items: baseline;
+  padding: 20px;
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U2ZTZlNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2NjY2NjYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+  background-size: 100%;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e6e6e6), color-stop(100%, #cccccc));
+  background-image: -moz-linear-gradient(#e6e6e6, #cccccc);
+  background-image: -webkit-linear-gradient(#e6e6e6, #cccccc);
+  background-image: linear-gradient(#e6e6e6, #cccccc);
+  margin: 10px;
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
+  border: 1px solid #666;
+  display: inline-block;
+}

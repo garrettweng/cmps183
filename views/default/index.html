@@ -1,0 +1,118 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+
+<div id="target"></div>
+
+<script id="template" type="text/ractive">
+<div id="buttons">
+    {{if auth.is_logged_in():}}
+    <input class="btn btn-primary" type="button" value="New Board" on-click="newboard"/>
+    {{else:}}
+    {{=A('Sign Up',  _class='btn btn-success', _href=URL('default','user', args=['register']))}}
+    {{=A('Sign In',  _class='btn btn-success', _href=URL('default','user', args=['login']))}}
+    {{pass}}
+</div>
+
+<hr>
+
+<div class="board_list">
+    {% #if editing %}
+        <div class="myboard">
+        <textarea on-blur="stopedit" value="{% active_draft %}" placeholder="Enter name"></textarea>
+        </div>
+    {% /if %}
+
+    {% #each board_list %}
+        <div class="myboard">
+            <a href="../default/board/{% id %}">{% board_name %}</a>
+        </div>
+    {% /each %}
+</div>
+
+{% #if loading %}
+    <div id="load_spinner">
+        <i class="fa fa-spinner fa-pulse fa-4x"></i>
+    </div>
+{% /if %}
+</script>
+
+<script>
+$(function() {
+
+    // Ractive object
+    var MAIN = new Ractive({
+        el: '#target',
+        template: '#template',
+        delimiters: ['{%', '%}'],
+        tripleDelimiters: ['{%%', '%%}'],
+        data: {
+            board_list: {},
+            active_draft: "",
+            loading: true,
+            editing: false
+        }
+    });
+
+    periodic_load();
+
+    // Called every 10s
+    function periodic_load() {
+        if (!MAIN.get('editing')) {
+            // Loads the initial list of boards.
+            $.ajax("{{=URL('default', 'load_boards', user_signature=True)}}",
+                    {
+                        method: 'POST',
+                        success: function (data) {
+                            MAIN.set('board_list', data['board_list']);
+                            MAIN.set('loading', false);
+                        }
+                    }
+            );
+        }
+    }
+
+    function add_board(board_name) {
+        $.ajax("{{=URL('default', 'add_board', user_signature=True)}}",
+              {
+                  data: {
+                      board_name: board_name
+                  },
+
+                  method: 'POST',
+                  success: function() {
+                      var board_list = MAIN.get('board_list');
+                      // remove the draft from the board list, it will be reloaded from the DB
+                      board_list.splice(0, 1);
+                      MAIN.get('board_list', board_list)
+                  },
+                  error: function() {}
+              }
+        );
+    }
+
+    // This code is called when the 'New Board' button is pressed.
+    MAIN.on("newboard", function(e) {
+        var editing = MAIN.get('editing');
+        /*if (!editing) {
+            var board_list = MAIN.get('board_list');
+            MAIN.set('active_draft', '');
+            var empty_board = {board_name: ''};
+            board_list.splice(0, 0, empty_board);
+            MAIN.set('board_list', board_list);*/
+            MAIN.set('editing', true);/*
+        }*/
+        return false;
+    });
+
+    MAIN.on("stopedit", function(e) {
+        MAIN.set('editing', false);
+        var draft = MAIN.get('active_draft');
+        if (draft !== "") {
+            add_board(MAIN.get('active_draft'));
+        }
+        periodic_load();
+    });
+
+    setInterval(periodic_load, 10000);
+});
+</script>
