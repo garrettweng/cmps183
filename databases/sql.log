@@ -8265,3 +8265,28 @@ success!
 success!
 success!
 success!
+success!
+success!
+success!
+success!
+timestamp: 2015-12-03T16:53:48.571445
+CREATE TABLE player(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pos CHAR(512),
+    points CHAR(512),
+    yards CHAR(512),
+    touchdowns CHAR(512),
+    field_goals CHAR(512),
+    interceptions CHAR(512),
+    fumbles CHAR(512)
+);
+success!
+timestamp: 2015-12-03T16:53:48.573793
+CREATE TABLE team(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE  ,
+    name CHAR(512),
+    week_points CHAR(512),
+    total_points CHAR(512)
+);
+success!

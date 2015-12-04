@@ -11,48 +11,6 @@ def index():
     return dict(user_id=user_id)
 
 
-def board():
-    board_id = request.args(0)
-    user_id = auth.user_id
-    return dict(board_id=board_id, userid=user_id)
-
-
-@auth.requires_login()
-def add_board():
-    db.board.insert(board_name=request.vars.board_name)
-    return "ok"
-
-
-@auth.requires_login()
-def add_post():
-    db.post.update_or_insert((db.post.post_id == request.vars.post_id),
-                              board=request.args(0),
-                              post_id=request.vars.post_id,
-                              post_name=request.vars.post_name,
-                              post_message=request.vars.post_message)
-    return "ok"
-
-
-@auth.requires_login()
-def delete_post():
-    print("hello")
-    db(db.post.post_id == request.vars.post_id).delete()
-    return "ok"
-
-
-def load_boards():
-    """Loads all boards."""
-    board_list = db().select(db.board.ALL, orderby=~db.board.id)
-    return response.json(dict(board_list=board_list))
-
-
-def load_posts():
-    """Loads posts for a given board"""
-    board_id = request.args(0)
-    post_list = db(db.post.board == board_id).select(db.post.ALL, orderby=~db.post.id)
-    return response.json(dict(post_list=post_list))
-
-
 def user():
     """
     exposes:

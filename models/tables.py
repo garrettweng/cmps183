@@ -35,3 +35,18 @@ db.post.user_id.readable = db.post.user_id.writable = False
 db.post.user_id.default = auth.user_id
 db.post.post_time.readable = db.post.post_time.writable = False
 db.post.post_time.default = datetime.utcnow()
+
+db.define_table('player',
+                Field('pos', required=True),
+                Field('points', default=0),
+                Field('yards', default=0),
+                Field('touchdowns', default=0),
+                Field('field_goals', default=0),
+                Field('interceptions', default=0),
+                Field('fumbles', default=0))
+
+db.define_table('team',
+                Field('user_id', db.auth_user, default=auth.user_id),
+                Field('name', required=True),
+                Field('week_points', default=0),
+                Field('total_points', default=0))
