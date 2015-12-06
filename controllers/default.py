@@ -7,8 +7,27 @@ import time
 
 
 def index():
+    team_list = db().select(db.team.ALL)
     user_id = auth.user_id
-    return dict(user_id=user_id)
+    user_team = db(db.team.user_id == user_id).select(db.team.ALL).first()
+    user_has_team = user_team is not None
+    return dict(user_id=user_id, team_list=team_list,user_team=user_team, user_has_team=user_has_team)
+
+@auth.requires_login()
+@auth.requires_signature()
+def newteam():
+    form = SQLFORM(db.team)
+    if form.process().accepted:
+        response.flash = 'Team Created!'
+        redirect(URL('default', 'index'))
+    elif form.errors:
+        response.flash = "Team name cannot be empty"
+    return dict(form=form)
+
+
+def team():
+    user_team = db(db.team.id == request.args(0)).select(db.team.ALL).first()
+    return dict(user_team=user_team)
 
 
 def user():

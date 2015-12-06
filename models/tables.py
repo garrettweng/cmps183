@@ -49,4 +49,13 @@ db.define_table('team',
                 Field('user_id', db.auth_user, default=auth.user_id),
                 Field('name', required=True),
                 Field('week_points', default=0),
-                Field('total_points', default=0))
+                Field('total_points', default=0),
+                Field('QB', db.player, default=None),
+                Field('RB', db.player, default=None),
+                Field('WR', db.player, default=None),
+                Field('TE', db.player, default=None),
+                Field('Ki', db.player, default=None))
+
+db.team.user_id.readable = db.team.user_id.writable = False
+db.team.week_points.readable = db.team.week_points.writable = False
+db.team.total_points.readable = db.team.total_points.writable = False

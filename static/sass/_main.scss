@@ -12,60 +12,11 @@ div.maincontent {
 }
 
 div.buttons {
-  .newboard {
-  }
   .signin {
     horiz-align: center;
   }
 }
 
-div.myboard {
-  // background-color: $clrListBg;
-  padding: 10px;
-  @include background-image(linear-gradient(lighten($clrListBg, 10%), $clrListBg));
-  margin: 10px;
-  @include border-radius(3px);
-  border: 1px solid $clrText;
-  display: inline-block;
-  .boardtitle {
-    font-size: 1.6em;
-    color: $clrMain;
-  }
-  .boardinfo {
-    font-size: 1.2em;
-    color: $clrMain;
-  }
-}
+table.overview {
 
-div.mypost {
-  // background-color: $clrListBg;
-  padding: 10px;
-  @include background-image(linear-gradient(lighten($clrListBg, 10%), $clrListBg));
-  margin: 10px;
-  @include border-radius(3px);
-  border: 1px solid $clrText;
-  display: inline-block;
-  .posttitle {
-    font-size: 1.6em;
-    color: $clrMain;
-  }
-  .posttitle {
-    font-size: 1.2em;
-    color: $clrMain;
-  }
-  .postinfo {
-    font-size: 0.8em;
-    color: $clrMain;
-  }
-}
-
-span.entry {
-  // background-color: $clrListBg;
-  align-items: baseline;
-  padding: 20px;
-  @include background-image(linear-gradient(lighten($clrListBg, 10%), $clrListBg));
-  margin: 10px;
-  @include border-radius(20px);
-  border: 1px solid $clrText;
-  display: inline-block;
 }
