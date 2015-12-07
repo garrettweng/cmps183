@@ -25,9 +25,27 @@ def newteam():
     return dict(form=form)
 
 
+@auth.requires_login()
+@auth.requires_signature()
+def newplayer():
+    form = SQLFORM(db.player)
+    if form.process().accepted:
+        response.flash = 'Player Added!'
+        redirect(URL('default', 'index'))
+    elif form.errors:
+        response.flash = "Player name and position cannot be empty"
+    return dict(form=form)
+
+
 def team():
     user_team = db(db.team.id == request.args(0)).select(db.team.ALL).first()
-    return dict(user_team=user_team)
+    player_list = db(db.player.team == user_team).select(db.player.ALL)
+    return dict(user_team=user_team, player_list=player_list)
+
+
+def players():
+    player_list = db().select(db.player.ALL)
+    return dict(player_list=player_list)
 
 
 def user():

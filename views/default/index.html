@@ -10,6 +10,7 @@
     {{elif not user_has_team:}}
     {{=A('New team',  _class='btn btn-success', _href=URL('default', 'newteam', user_signature=True))}}
     {{pass}}
+    {{=A('Players',  _class='btn btn-success', _href=URL('default', 'players'))}}
 </div>
 
 <hr>
@@ -17,15 +18,15 @@
 
 <table border="1" width="600px" align="center">
     <tr>
-        <td><h4>Team name:</h4></td>
-        <td><h4>Points this week:</h4></td>
-        <td><h4>Points this season:</h4></td>
+        <td align="center"><h4>Team name:</h4></td>
+        <td align="center"><h4>Points this week:</h4></td>
+        <td align="center"><h4>Points this season:</h4></td>
     </tr>
     {{for t in team_list:}}
     <tr>
-        <td>{{=A(t.name, _href=URL('default', 'team', args=[t.id]))}}</td>
-        <td>{{=t.week_points}}</td>
-        <td>{{=t.total_points}}</td>
+        <td align="center">{{=A(t.name, _href=URL('default', 'team', args=[t.id]))}}</td>
+        <td align="center">{{=t.week_points}}</td>
+        <td align="center">{{=t.total_points}}</td>
     </tr>
     {{pass}}
 </table>
