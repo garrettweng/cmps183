@@ -45,10 +45,3 @@ db.player.touchdowns.readable = db.player.touchdowns.writable = False
 db.player.field_goals.readable = db.player.field_goals.writable = False
 db.player.interceptions.readable = db.player.interceptions.writable = False
 db.player.fumbles.readable = db.player.fumbles.writable = False
-
-
-db.define_table('draft',
-                Field('team', db.team),
-                Field('name'))
-
-db.draft.team.readable = db.draft.team.writable = False

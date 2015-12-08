@@ -9,9 +9,10 @@
     {{=A('Sign In',  _class='btn btn-success', _href=URL('default','user', args=['login']))}}
     {{elif not user_has_team:}}
     {{=A('New team',  _class='btn btn-success', _href=URL('default', 'newteam', user_signature=True))}}
+    {{else:}}
+    {{=A('draft',  _class='btn btn-primary', _href=URL('default', 'draft', user_signature=True))}}
     {{pass}}
     {{=A('Players',  _class='btn btn-success', _href=URL('default', 'players'))}}
-    {{=A('draft',  _class='btn btn-success', _href=URL('default', 'draft', user_signature=True))}}
 </div>
 
 <hr>

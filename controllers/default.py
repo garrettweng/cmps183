@@ -40,7 +40,8 @@ def newplayer():
 @auth.requires_login()
 @auth.requires_signature()
 def draft():
-    return dict()
+    user_team_id = db(db.team.user_id == auth.user_id).select().first().id
+    return dict(team_id=user_team_id)
 
 
 @auth.requires_login()
@@ -61,15 +62,15 @@ def load_teams():
 @auth.requires_login()
 @auth.requires_signature()
 def load_user_team():
-    user_players = db(db.player.team == request.vars.user_team).select(db.player.ALL, orderby=db.team.id)
+    user_players = db(db.player.team == request.args(0)).select(db.player.ALL, orderby=db.player.id)
     return response.json(dict(user_players=user_players))
 
 
 @auth.requires_login()
 @auth.requires_signature()
 def draft_add_team():
-    db.draft.update((db.team.id == request.vars.team_id),
-                    ready=True)
+    db.team.update_or_insert((db.team.id == request.vars.team_id),
+                             ready=True)
     return "ok"
 
 
