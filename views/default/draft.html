@@ -6,11 +6,12 @@
 <script id="template" type="text/ractive">
 <div id="buttons">
     {{=A('Overview',  _class='btn btn-warning', _href=URL('default', 'index'))}}
+    {% #if !user_team.ready %}
     <input class="btn btn-primary" type="button" value="Start draft" on-click="startdraft">
+    {% /if %}
 </div>
 
 <hr>
-
     <h1 align="center">Draft</h1>
     {% #if loading_teams || loading_players %}
         <div id="load_spinner">
@@ -96,6 +97,8 @@ $(function() {
             user_players: {},
             loading_players: true,
             loading_teams: true,
+            turn: 0,
+            num_teams: 0,
             all_ready: false
         }
     });
@@ -103,6 +106,12 @@ $(function() {
     load_teams();
     load_players();
     load_user_team();
+
+    function turn() {
+        var team_list = MAIN.get('team_list')
+        var num_teams = MAIN.get('num_teams');
+        var turn = MAIN.get('turn') % num_teams;
+    }
 
     function load_players() {
         $.ajax("{{=URL('default', 'load_players', user_signature=True)}}",
@@ -121,9 +130,20 @@ $(function() {
             {
                 method: 'POST',
                 success: function (data) {
-                    MAIN.set('team_list', data['team_list']);
+                    var team_list = data['team_list'];
+                    MAIN.set('team_list', team_list);
                     MAIN.set('user_team', data['user_team']);
                     MAIN.set('loading_teams', false);
+
+                    var num_teams = 0;
+                    var all_ready = true;
+                    for (var t in team_list) {
+                        num_teams = num_teams + 1;
+                        all_ready = all_ready && team_list[t].ready;
+                    }
+
+                    MAIN.set('num_teams', num_teams);
+                    MAIN.set('all_ready', all_ready)
                 }
             }
         );

@@ -82,7 +82,52 @@ def team():
 
 def players():
     player_list = db().select(db.player.ALL)
-    return dict(player_list=player_list)
+    points_list = []
+    for p in player_list:
+        points_list.append(calc_points(p))
+    return dict(player_list=player_list, points_list=points_list)
+
+
+def calc_points(player):
+    points = (int(player.yards) / 10) + (int(player.touchdowns) * 5) + (int(player.field_goals) * 3) - (int(player.interceptions) * 2) - (int(player.fumbles) * 2)
+    return points
+
+
+def edit_stats():
+    switch_true()
+    record = db.player(request.args(0)) or redirect(URL('default', 'index'))
+    form = SQLFORM(db.player, record)
+    if form.process().accepted:
+        response.flash = "Stats posted!"
+        redirect(URL('default', 'players'))
+    elif form.errors:
+        response.flash = "Stat fields cannot be empty"
+    switch_false()
+    return dict(form=form)
+
+
+def switch_true():
+    db.player.name.readable = db.player.name.writable = False
+    db.player.pos.readable = db.player.pos.writable = False
+    db.player.team.readable = db.player.team.writable = False
+    db.player.yards.readable = db.player.yards.writable = True
+    db.player.touchdowns.readable = db.player.touchdowns.writable = True
+    db.player.field_goals.readable = db.player.field_goals.writable = True
+    db.player.interceptions.readable = db.player.interceptions.writable = True
+    db.player.fumbles.readable = db.player.fumbles.writable = True
+    return
+
+
+def switch_false():
+    db.player.name.readable = db.player.name.writable = True
+    db.player.pos.readable = db.player.pos.writable = True
+    db.player.team.readable = db.player.team.writable = True
+    db.player.yards.readable = db.player.yards.writable = False
+    db.player.touchdowns.readable = db.player.touchdowns.writable = False
+    db.player.field_goals.readable = db.player.field_goals.writable = False
+    db.player.interceptions.readable = db.player.interceptions.writable = False
+    db.player.fumbles.readable = db.player.fumbles.writable = False
+    return
 
 
 def user():

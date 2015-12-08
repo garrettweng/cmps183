@@ -19,7 +19,10 @@
             <h4>Position:</h4>
         </td>
         <td align="center">
-            <h4>Points:</h4>
+            <h4>Total points:</h4>
+        </td>
+        <td align="center">
+            <h4>Week points:</h4>
         </td>
         <td align="center">
             <h4>Yards:</h4>
@@ -37,16 +40,20 @@
             <h4>Fumbles:</h4>
         </td>
     </tr>
+    {{i = 0}}
     {{for p in player_list:}}
     <tr>
         <td align="center">
-            <h4>{{=p.name}}</h4>
+            <h4>{{=A(p.name, _href=URL('default', 'edit_stats', args=[p.id]))}}</h4>
         </td>
         <td align="center">
             <h4>{{=p.pos}}</h4>
         </td>
         <td align="center">
-            <h4>{{=p.points}}</h4>
+            <h4>{{=int(p.points) + points_list[i]}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=points_list[i]}}</h4>
         </td>
         <td align="center">
             <h4>{{=p.yards}}</h4>
@@ -64,5 +71,6 @@
             <h4>{{=p.fumbles}}</h4>
         </td>
     </tr>
+        {{i = i + 1}}
     {{pass}}
 </table>

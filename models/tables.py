@@ -38,6 +38,7 @@ db.define_table('player',
                 Field('interceptions', default=0),
                 Field('fumbles', default=0))
 
+db.player.id.readable = db.player.id.writable = False
 db.player.team.readable = db.player.team.writable = False
 db.player.points.readable = db.player.points.writable = False
 db.player.yards.readable = db.player.yards.writable = False
