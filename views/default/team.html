@@ -1,0 +1,63 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+
+{{=A('Overview',  _class='btn btn-warning', _href=URL('default', 'index'))}}
+<hr>
+<h1 align="center">{{=user_team.name}}</h1>
+
+<table align="center" width="1000" border="1">
+    <tr>
+        <td align="center">
+            <h4>Player Name:</h4>
+        </td>
+        <td align="center">
+            <h4>Position:</h4>
+        </td>
+        <td align="center">
+            <h4>Points:</h4>
+        </td>
+        <td align="center">
+            <h4>Yards:</h4>
+        </td>
+        <td align="center">
+            <h4>Touchdowns:</h4>
+        </td>
+        <td align="center">
+            <h4>Field Goals:</h4>
+        </td>
+        <td align="center">
+            <h4>Interceptions:</h4>
+        </td>
+        <td align="center">
+            <h4>Fumbles:</h4>
+        </td>
+    </tr>
+    {{for p in player_list:}}
+    <tr>
+        <td align="center">
+            <h4>{{=p.name}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.pos}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.points}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.yards}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.touchdowns}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.field_goals}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.interceptions}}</h4>
+        </td>
+        <td align="center">
+            <h4>{{=p.fumbles}}</h4>
+        </td>
+    </tr>
+    {{pass}}
+</table>

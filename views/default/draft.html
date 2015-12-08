@@ -1,0 +1,150 @@
+{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
+{{extend 'layout.html'}}
+
+<div id="target"></div>
+
+<script id="template" type="text/ractive">
+<div id="buttons">
+    {{=A('Overview',  _class='btn btn-warning', _href=URL('default', 'index'))}}
+    <input class="btn btn-primary" type="button" value="Start draft" on-click="startdraft">
+</div>
+
+<hr>
+<h1 align="center">Draft</h1>
+
+    {% #if loading_teams || loading_players %}
+        <div id="load_spinner">
+            <i class="fa fa-spinner fa-pulse fa-4x"></i>
+        </div>
+    {% else %}
+
+    <table border="1" width="25%" align="left">
+        <tr>
+            <td align="center"><h4>Ready:</h4></td>
+            <td align="center"><h4>Team name:</h4></td>
+        </tr>
+        {% #each team_list %}
+        <tr>
+            <td align="center">{% ready %}</td>
+            <td align="center">{% name %}</td>
+        </tr>
+        {% /each %}
+    </table>
+
+    <table border="1" width="25%" align="right">
+        <tr>
+            <td align="center"><h4>Position:</h4></td>
+            <td align="center"><h4>Player name:</h4></td>
+        </tr>
+        {% #each user_players %}
+        <tr>
+            <td align="center">{% pos %}</td>
+            <td align="center">{% name %}</td>
+        </tr>
+        {% /each %}
+    </table>
+
+    <table border="1" width="25%" align="center">
+        <tr>
+            <td align="center"><h4>Player name:</h4></td>
+            <td align="center"><h4>Pos:</h4></td>
+            <td align="center"><h4>Points:</h4></td>
+        </tr>
+        {% #each player_list %}
+        <tr>
+            <td align="center">{% name %}</td>
+            <td align="center">{% pos %}</td>
+            <td align="center">{% points %}</td>
+        </tr>
+        {% /each %}
+    </table>
+
+    {% /if %}
+
+</script>
+
+<script>
+$(function() {
+    var MAIN = new Ractive({
+        el: '#target',
+        template: '#template',
+        delimiters: ['{%', '%}'],
+        tripleDelimiters: ['{%%', '%%}'],
+        data: {
+            player_list: {},
+            team_list: {},
+            user_team: {},
+            user_players: {},
+            loading_players: true,
+            loading_teams: true
+        }
+    });
+
+    load_teams();
+    load_players();
+    load_user_team();
+
+    function load_players() {
+        $.ajax("{{=URL('default', 'load_players', user_signature=True)}}",
+            {
+                method: 'POST',
+                success: function (data) {
+                    MAIN.set('player_list', data['player_list']);
+                    MAIN.set('loading_players', false);
+                }
+            }
+        );
+    }
+
+    function load_teams() {
+        $.ajax("{{=URL('default', 'load_teams', user_signature=True)}}",
+            {
+                method: 'POST',
+                success: function (data) {
+                    MAIN.set('team_list', data['team_list']);
+                    MAIN.set('user_team', data['user_team']);
+                    MAIN.set('loading_teams', false);
+                }
+            }
+        );
+    }
+
+    function load_user_team() {
+        var team_id = MAIN.get('user_team').id;
+        $.ajax("{{=URL('default', 'load_user_team', user_signature=True)}}",
+            {
+                data: {
+                    user_team: team_id
+                },
+                method: 'POST',
+                success: function (data) {
+                    MAIN.set('user_players', data['user_players']);
+                }
+            }
+        );
+    }
+
+    function add_team(team_id) {
+        $.ajax("{{=URL('default', 'draft_add_team', user_signature=True)}}",
+            {
+                data: {
+                    team_id: team_id
+                },
+                method: 'POST',
+                success: function () {
+                    var team_list = MAIN.get('team_list');
+                    var new_team = {team: team_id};
+                    team_list.push(new_team);
+                    MAIN.set('team_list', team_list);
+                    load_teams();
+                }
+            }
+        );
+    }
+
+    MAIN.on("startdraft", function(e) {
+        var user_team = MAIN.get('user_team');
+        add_team(user_team.id);
+    });
+});
+</script>
