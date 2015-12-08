@@ -31,10 +31,46 @@ def newplayer():
     form = SQLFORM(db.player)
     if form.process().accepted:
         response.flash = 'Player Added!'
-        redirect(URL('default', 'index'))
+        redirect(URL('default', 'players'))
     elif form.errors:
         response.flash = "Player name and position cannot be empty"
     return dict(form=form)
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def draft():
+    return dict()
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def load_players():
+    player_list = db(db.player.team is None).select(db.player.ALL, orderby=db.player.points)
+    return response.json(dict(player_list=player_list))
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def load_teams():
+    team_list = db().select(db.team.ALL, orderby=db.team.id)
+    user_team = db(db.team.user_id == auth.user_id).select().first()
+    return response.json(dict(team_list=team_list, user_team=user_team))
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def load_user_team():
+    user_players = db(db.player.team == request.vars.user_team).select(db.player.ALL, orderby=db.team.id)
+    return response.json(dict(user_players=user_players))
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def draft_add_team():
+    db.draft.update((db.team.id == request.vars.team_id),
+                    ready=True)
+    return "ok"
 
 
 def team():
