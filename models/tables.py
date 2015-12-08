@@ -23,6 +23,7 @@ db.define_table('team',
                 Field('total_points', default=0))
 
 db.team.user_id.readable = db.team.user_id.writable = False
+db.team.ready.readable = db.team.ready.writable = False
 db.team.week_points.readable = db.team.week_points.writable = False
 db.team.total_points.readable = db.team.total_points.writable = False
 

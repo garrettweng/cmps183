@@ -27,6 +27,14 @@ def newteam():
 
 @auth.requires_login()
 @auth.requires_signature()
+def remove_team():
+    db(db.team.id == request.args(0)).delete()
+    redirect(URL('default', 'index'))
+    return
+
+
+@auth.requires_login()
+@auth.requires_signature()
 def newplayer():
     form = SQLFORM(db.player)
     if form.process().accepted:
@@ -40,14 +48,14 @@ def newplayer():
 @auth.requires_login()
 @auth.requires_signature()
 def draft():
-    user_team_id = db(db.team.user_id == auth.user_id).select().first().id
-    return dict(team_id=user_team_id)
+    user_team = db(db.team.user_id == auth.user_id).select().first()
+    return dict(team_id=user_team.id)
 
 
 @auth.requires_login()
 @auth.requires_signature()
 def load_players():
-    player_list = db(db.player.team is None).select(db.player.ALL, orderby=db.player.points)
+    player_list = db(db.player.team < 0).select(db.player.ALL, orderby=db.player.points)
     return response.json(dict(player_list=player_list))
 
 
@@ -71,6 +79,33 @@ def load_user_team():
 def draft_add_team():
     db.team.update_or_insert((db.team.id == request.vars.team_id),
                              ready=True)
+    return "ok"
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def add_user_player():
+    db.team.update_or_insert((db.player.id == request.vars.player_id),
+                             team=request.args(0))
+    return "ok"
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def draft_remove_team():
+    db.team.update_or_insert((db.team.id == request.vars.team_id),
+                             ready=False)
+    return "ok"
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def reset_draft():
+    row = db(db.player.ALL).select()
+    for r in row:
+        print("poop")
+        db.player.update_or_insert(r.id == db.player.id,
+                                   team=None)
     return "ok"
 
 

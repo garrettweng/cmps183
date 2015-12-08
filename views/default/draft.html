@@ -6,9 +6,14 @@
 <script id="template" type="text/ractive">
 <div id="buttons">
     {{=A('Overview',  _class='btn btn-warning', _href=URL('default', 'index'))}}
-    {% #if !user_team.ready %}
-    <input class="btn btn-primary" type="button" value="Start draft" on-click="startdraft">
+    {% #if !all_ready %}
+        {% #if user_team.ready == 'False' %}
+        <input class="btn btn-primary" type="button" value="Start drafting" on-click="startdraft">
+        {% else %}
+        <input class="btn btn-primary" type="button" value="Stop drafting" on-click="stopdraft">
+        {% /if %}
     {% /if %}
+    <input class="btn btn-primary" type="button" value="Reset" on-click="resetdraft">
 </div>
 
 <hr>
@@ -31,8 +36,10 @@
         {% #each team_list %}
         <tr>
             <td align="center">
-            {% #if ready %}
+            {% #if ready == 'True' %}
                 <i class="fa fa-check"></i>
+            {% else %}
+                <i class="fa fa-times"></i>
             {% /if %}
             </td>
             <td align="center">{% name %}</td>
@@ -51,8 +58,8 @@
             <td align="center"><h4>Points:</h4></td>
         </tr>
         {% #each player_list %}
-        <tr>
-            <td align="center">{% name %}</td>
+        <tr on-click='pick_player' id='{% id %}' data-id="{% id %}">
+            <td align="center">{% name %}{% team %}</td>
             <td align="center">{% pos %}</td>
             <td align="center">{% points %}</td>
         </tr>
@@ -97,8 +104,6 @@ $(function() {
             user_players: {},
             loading_players: true,
             loading_teams: true,
-            turn: 0,
-            num_teams: 0,
             all_ready: false
         }
     });
@@ -107,10 +112,12 @@ $(function() {
     load_players();
     load_user_team();
 
-    function turn() {
-        var team_list = MAIN.get('team_list')
-        var num_teams = MAIN.get('num_teams');
-        var turn = MAIN.get('turn') % num_teams;
+    function start_turn() {
+
+    }
+
+    function end_turn() {
+
     }
 
     function load_players() {
@@ -135,14 +142,13 @@ $(function() {
                     MAIN.set('user_team', data['user_team']);
                     MAIN.set('loading_teams', false);
 
-                    var num_teams = 0;
                     var all_ready = true;
+
                     for (var t in team_list) {
-                        num_teams = num_teams + 1;
-                        all_ready = all_ready && team_list[t].ready;
+                        if (team_list[t].ready == 'False')
+                            all_ready = false;
                     }
 
-                    MAIN.set('num_teams', num_teams);
                     MAIN.set('all_ready', all_ready)
                 }
             }
@@ -173,6 +179,73 @@ $(function() {
                 }
             }
         );
+    });
+
+    MAIN.on("stopdraft", function remove_team() {
+        var team = MAIN.get('user_team');
+        $.ajax("{{=URL('default', 'draft_remove_team', user_signature=True)}}",
+            {
+                data: {
+                    team_id: team.id
+                },
+                method: 'POST',
+                success: function () {
+                    load_teams();
+                }
+            }
+        );
+    });
+
+    MAIN.on("pick_player", function pick_player(e) {
+        var all_ready = MAIN.get('all_ready');
+        if (all_ready) {
+            var user_players = MAIN.get('user_players');
+            var player_list = MAIN.get('player_list');
+            var id = $(e.node).data('id');
+            var player = null;
+
+            for (var p in player_list) {
+                if (player_list[p].id == id) {
+                    player = player_list[p];
+                }
+            }
+
+            if (player.team != null) {
+                return;
+            }
+
+            var have_pos = false;
+            for (var i in user_players) {
+                if (user_players[i].pos == player.pos) {
+                    have_pos = true;
+                }
+            }
+
+            if (!have_pos) {
+                $.ajax("{{=URL('default', 'add_user_player', args=[team_id], user_signature=True)}}",
+                        {
+                            data: {
+                                player_id: player.id
+                            },
+                            method: 'POST',
+                            success: function () {
+                                for (var j in player_list) {
+                                    if (player_list[j].id == player.id)
+                                        player_list.splice(j, 1);
+                                }
+                                user_players.append(player);
+                                MAIN.set('user_players', user_players);
+                            }
+                        }
+                );
+            }
+            load_players();
+        }
+    });
+
+    MAIN.on("resetdraft", function() {
+        $.ajax("{{=URL('default', 'reset_draft', user_signature=True)}}");
+        load_players();
     });
 
     setInterval(load_teams, 10000);

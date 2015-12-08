@@ -2,6 +2,9 @@
 {{extend 'layout.html'}}
 
 {{=A('Overview',  _class='btn btn-warning', _href=URL('default', 'index'))}}
+{{if auth.user_id == user_team.user_id:}}
+{{=A('Remove Team',  _class='btn btn-success', _href=URL('default', 'remove_team', args=[request.args(0)], user_signature=True))}}
+{{pass}}
 <hr>
 <h1 align="center">{{=user_team.name}}</h1>
 
