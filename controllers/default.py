@@ -11,6 +11,16 @@ def index():
     user_id = auth.user_id
     user_team = db(db.team.user_id == user_id).select(db.team.ALL).first()
     user_has_team = user_team is not None
+    # calculate current week points for each team
+    for team in team_list:
+        week_points = 0
+        players = db(db.player.team == team.id).select(db.player.ALL)
+        for player in players:
+            # calculate player points for the week
+            player_points = calc_points(player)
+            week_points += player_points
+        db.team.update_or_insert((db.team.id == team.id),
+                                 week_points=week_points)
     return dict(user_id=user_id, team_list=team_list,user_team=user_team, user_has_team=user_has_team)
 
 @auth.requires_login()
@@ -55,7 +65,7 @@ def draft():
 @auth.requires_login()
 @auth.requires_signature()
 def load_players():
-    player_list = db(db.player.team < 0).select(db.player.ALL, orderby=db.player.points)
+    player_list = db(db.player.team is None).select(db.player.ALL, orderby=~db.player.points)
     return response.json(dict(player_list=player_list))
 
 
@@ -100,12 +110,63 @@ def draft_remove_team():
 
 @auth.requires_login()
 @auth.requires_signature()
+def draft_next_turn():
+    team_list = db().select(db.team.ALL)
+    num_teams = 0
+    for team in team_list:
+        num_teams += 1
+    row = db().select(db.draft.ALL).first()
+    next_turn = int(row.turn)
+    next_turn = (next_turn + 1) % num_teams
+    print(num_teams)
+    print(next_turn)
+    db.draft.update_or_insert(db.draft.id == row.id,
+                              turn=next_turn)
+    return "ok"
+
+
+@auth.requires_login()
+@auth.requires_signature()
+def draft_get_turn():
+    turn = db().select(db.draft.ALL).first().turn
+    return response.json(dict(turn=turn))
+
+
+@auth.requires_login()
+@auth.requires_signature()
 def reset_draft():
-    row = db(db.player.ALL).select()
-    for r in row:
-        print("poop")
-        db.player.update_or_insert(r.id == db.player.id,
-                                   team=None)
+    # resets player stats and updates points totals in DB
+    team_list = db().select(db.team.ALL)
+    for team in team_list:
+        total_team_points = int(db.team[team.id].total_points)
+        week_points = 0
+        players = db(db.player.team == team.id).select(db.player.ALL)
+        for player in players:
+            # calculate player points for the week
+            player_points = calc_points(player)
+            week_points += player_points
+        # update team total points in DB, and set not ready
+        total_team_points += week_points
+        db.team.update_or_insert((db.team.id == team.id),
+                                 total_points=total_team_points,
+                                 ready=False)
+    # Now need to update players not on a team
+    player_list = db().select(db.player.ALL)
+    for player in player_list:
+        player_points = calc_points(player)
+        total_points = player_points + int(db.player[player.id].points)
+        db.player.update_or_insert((db.player.id == player.id),
+                                   team=None,
+                                   points=total_points,
+                                   yards=0,
+                                   touchdowns=0,
+                                   field_goals=0,
+                                   interceptions=0,
+                                   fumbles=0)
+    # reset the turn counter
+    draft_id = db().select(db.draft.ALL).first().id
+    db.draft.update_or_insert(db.draft.id == draft_id,
+                              turn=0)
     return "ok"
 
 

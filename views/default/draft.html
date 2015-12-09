@@ -12,8 +12,9 @@
         {% else %}
         <input class="btn btn-primary" type="button" value="Stop drafting" on-click="stopdraft">
         {% /if %}
-    {% /if %}
+    {% else %}
     <input class="btn btn-primary" type="button" value="Reset" on-click="resetdraft">
+    {% /if %}
 </div>
 
 <hr>
@@ -34,6 +35,20 @@
             <td align="center"><h4>Team name:</h4></td>
         </tr>
         {% #each team_list %}
+        {% #if all_ready && (id == team_list[turn].id) %}
+        <tr bgcolor="lighblue">
+            <td align="center">
+            {% #if ready == 'True' %}
+                <i class="fa fa-check"></i>
+            {% else %}
+                <i class="fa fa-times"></i>
+            {% /if %}
+            </td>
+            <td align="center">
+                {% name %}
+            </td>
+        </tr>
+        {% else %}
         <tr>
             <td align="center">
             {% #if ready == 'True' %}
@@ -42,8 +57,11 @@
                 <i class="fa fa-times"></i>
             {% /if %}
             </td>
-            <td align="center">{% name %}</td>
+            <td align="center">
+                {% name %}
+            </td>
         </tr>
+        {% /if %}
         {% /each %}
     </table>
 
@@ -58,11 +76,13 @@
             <td align="center"><h4>Points:</h4></td>
         </tr>
         {% #each player_list %}
-        <tr on-click='pick_player' id='{% id %}' data-id="{% id %}">
+        {% #if team == null %}
+        <tr on-click='pick_player' id='{% id %}' data-id="{% id %}" on-mouseover="hovering" on-mouseout="nothovering">
             <td align="center">{% name %}{% team %}</td>
             <td align="center">{% pos %}</td>
             <td align="center">{% points %}</td>
         </tr>
+        {% /if %}
         {% /each %}
     </table>
 
@@ -104,21 +124,14 @@ $(function() {
             user_players: {},
             loading_players: true,
             loading_teams: true,
-            all_ready: false
+            all_ready: false,
+            turn: 0
         }
     });
 
     load_teams();
     load_players();
     load_user_team();
-
-    function start_turn() {
-
-    }
-
-    function end_turn() {
-
-    }
 
     function load_players() {
         $.ajax("{{=URL('default', 'load_players', user_signature=True)}}",
@@ -166,6 +179,27 @@ $(function() {
         );
     }
 
+    function load_turn() {
+        var all_ready = MAIN.get('all_ready');
+        if (all_ready) {
+            $.ajax("{{=URL('default', 'draft_get_turn', user_signature=True)}}",
+                    {
+                        method: 'POST',
+                        success: function (data) {
+                            MAIN.set('turn', data['turn']);
+                        }
+                    }
+            );
+        }
+    }
+
+    function next_turn() {
+        var all_ready = MAIN.get('all_ready');
+        if (all_ready) {
+            $.ajax("{{=URL('default', 'draft_next_turn', user_signature=True)}}");
+        }
+    }
+
     MAIN.on("startdraft", function add_team() {
         var team = MAIN.get('user_team');
         $.ajax("{{=URL('default', 'draft_add_team', user_signature=True)}}",
@@ -197,58 +231,84 @@ $(function() {
     });
 
     MAIN.on("pick_player", function pick_player(e) {
+        var user_team = MAIN.get('user_team');
+        var team_list = MAIN.get('team_list');
         var all_ready = MAIN.get('all_ready');
+        var turn = MAIN.get('turn') % team_list.length;
         if (all_ready) {
-            var user_players = MAIN.get('user_players');
-            var player_list = MAIN.get('player_list');
-            var id = $(e.node).data('id');
-            var player = null;
+            if (team_list[turn].id == user_team.id) {
+                var user_players = MAIN.get('user_players');
+                var player_list = MAIN.get('player_list');
+                var id = $(e.node).data('id');
+                var player = null;
 
-            for (var p in player_list) {
-                if (player_list[p].id == id) {
-                    player = player_list[p];
+                for (var p in player_list) {
+                    if (player_list[p].id == id) {
+                        player = player_list[p];
+                    }
                 }
-            }
 
-            if (player.team != null) {
-                return;
-            }
-
-            var have_pos = false;
-            for (var i in user_players) {
-                if (user_players[i].pos == player.pos) {
-                    have_pos = true;
+                if (player.team != null) {
+                    return;
                 }
-            }
 
-            if (!have_pos) {
-                $.ajax("{{=URL('default', 'add_user_player', args=[team_id], user_signature=True)}}",
-                        {
-                            data: {
-                                player_id: player.id
-                            },
-                            method: 'POST',
-                            success: function () {
-                                for (var j in player_list) {
-                                    if (player_list[j].id == player.id)
-                                        player_list.splice(j, 1);
+                var have_pos = false;
+                for (var i in user_players) {
+                    if (user_players[i].pos == player.pos) {
+                        have_pos = true;
+                    }
+                }
+
+                if (!have_pos) {
+                    $.ajax("{{=URL('default', 'add_user_player', args=[team_id], user_signature=True)}}",
+                            {
+                                data: {
+                                    player_id: player.id
+                                },
+                                method: 'POST',
+                                success: function () {
+                                    for (var j in player_list) {
+                                        if (player_list[j].id == player.id)
+                                            player_list.splice(j, 1);
+                                    }
+                                    user_players.append(player);
+                                    MAIN.set('user_players', user_players);
                                 }
-                                user_players.append(player);
-                                MAIN.set('user_players', user_players);
                             }
-                        }
-                );
+                    );
+
+                    MAIN.set('turn', turn + 1);
+                    next_turn();
+                    load_teams();
+                    load_players();
+                    load_user_team();
+                    load_turn();
+                } else {
+
+                    alert("You already have a " + player.pos);
+                }
+
+            } else {
+
+                alert("It's not your turn!");
             }
-            load_players();
         }
     });
 
+    MAIN.on("hovering",    function(e) { e.node.style.backgroundColor = "#9999ff"; });
+    MAIN.on("nothovering", function(e) { e.node.style.backgroundColor = "#ffffff"; });
+
     MAIN.on("resetdraft", function() {
         $.ajax("{{=URL('default', 'reset_draft', user_signature=True)}}");
+        load_teams();
         load_players();
+        load_user_team();
+        load_turn();
     });
 
-    setInterval(load_teams, 10000);
-    setInterval(load_players, 10000);
+    setInterval(load_teams, 5000);
+    setInterval(load_players, 5000);
+    setInterval(load_user_team, 5000);
+    setInterval(load_turn, 5000);
 });
 </script>
