@@ -21,7 +21,10 @@ def index():
             week_points += player_points
         db.team.update_or_insert((db.team.id == team.id),
                                  week_points=week_points)
+    # need to get the updated team values
+    team_list = db().select(db.team.ALL)
     return dict(user_id=user_id, team_list=team_list,user_team=user_team, user_has_team=user_has_team)
+
 
 @auth.requires_login()
 @auth.requires_signature()
@@ -64,24 +67,13 @@ def draft():
 
 @auth.requires_login()
 @auth.requires_signature()
-def load_players():
-    player_list = db(db.player.team is None).select(db.player.ALL, orderby=~db.player.points)
-    return response.json(dict(player_list=player_list))
-
-
-@auth.requires_login()
-@auth.requires_signature()
 def load_teams():
     team_list = db().select(db.team.ALL, orderby=db.team.id)
     user_team = db(db.team.user_id == auth.user_id).select().first()
-    return response.json(dict(team_list=team_list, user_team=user_team))
-
-
-@auth.requires_login()
-@auth.requires_signature()
-def load_user_team():
     user_players = db(db.player.team == request.args(0)).select(db.player.ALL, orderby=db.player.id)
-    return response.json(dict(user_players=user_players))
+    player_list = db().select(db.player.ALL, orderby=~db.player.points)
+    turn = db().select(db.draft.ALL).first().turn
+    return response.json(dict(team_list=team_list, user_team=user_team, user_players=user_players, player_list=player_list, turn=turn))
 
 
 @auth.requires_login()
@@ -97,24 +89,13 @@ def draft_add_team():
 def add_user_player():
     db.team.update_or_insert((db.player.id == request.vars.player_id),
                              team=request.args(0))
-    return "ok"
-
-
-@auth.requires_login()
-@auth.requires_signature()
-def draft_remove_team():
-    db.team.update_or_insert((db.team.id == request.vars.team_id),
-                             ready=False)
-    return "ok"
-
-
-@auth.requires_login()
-@auth.requires_signature()
-def draft_next_turn():
+    # increment turn
     team_list = db().select(db.team.ALL)
     num_teams = 0
+    print()
     for team in team_list:
         num_teams += 1
+
     row = db().select(db.draft.ALL).first()
     next_turn = int(row.turn)
     next_turn = (next_turn + 1) % num_teams
@@ -127,9 +108,10 @@ def draft_next_turn():
 
 @auth.requires_login()
 @auth.requires_signature()
-def draft_get_turn():
-    turn = db().select(db.draft.ALL).first().turn
-    return response.json(dict(turn=turn))
+def draft_remove_team():
+    db.team.update_or_insert((db.team.id == request.vars.team_id),
+                             ready=False)
+    return "ok"
 
 
 @auth.requires_login()

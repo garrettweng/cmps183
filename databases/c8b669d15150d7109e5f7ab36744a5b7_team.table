@@ -78,7 +78,7 @@ sg9
 I00
 sg10
 g15
-ssS'total_points'
+ssS'ready'
 p29
 (dp30
 g4
@@ -86,7 +86,7 @@ I512
 sg5
 I00
 sg6
-I6
+I4
 sg7
 S'CHAR(512)'
 p31
@@ -145,7 +145,7 @@ I00
 sg24
 S'reference player'
 p43
-ssS'ready'
+ssS'total_points'
 p44
 (dp45
 g4
@@ -153,7 +153,7 @@ I512
 sg5
 I00
 sg6
-I4
+I6
 sg7
 S'CHAR(512)'
 p46

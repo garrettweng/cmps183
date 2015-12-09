@@ -19,7 +19,7 @@
 
 <hr>
     <h1 align="center">Draft</h1>
-    {% #if loading_teams || loading_players %}
+    {% #if loading_ %}
         <div id="load_spinner">
             <i class="fa fa-spinner fa-pulse fa-4x"></i>
         </div>
@@ -35,7 +35,7 @@
             <td align="center"><h4>Team name:</h4></td>
         </tr>
         {% #each team_list %}
-        {% #if all_ready && (id == team_list[turn].id) %}
+        {% #if all_ready && (turn >= 0) && (id == team_list[turn].id) %}
         <tr bgcolor="lighblue">
             <td align="center">
             {% #if ready == 'True' %}
@@ -122,82 +122,38 @@ $(function() {
             team_list: {},
             user_team: {},
             user_players: {},
-            loading_players: true,
-            loading_teams: true,
+            loading: true,
             all_ready: false,
-            turn: 0
+            turn: -1
         }
     });
 
     load_teams();
-    load_players();
-    load_user_team();
-
-    function load_players() {
-        $.ajax("{{=URL('default', 'load_players', user_signature=True)}}",
-            {
-                method: 'POST',
-                success: function (data) {
-                    MAIN.set('player_list', data['player_list']);
-                    MAIN.set('loading_players', false);
-                }
-            }
-        );
-    }
 
     function load_teams() {
-        $.ajax("{{=URL('default', 'load_teams', user_signature=True)}}",
+        $.ajax("{{=URL('default', 'load_teams', args=[team_id], user_signature=True)}}",
             {
                 method: 'POST',
                 success: function (data) {
                     var team_list = data['team_list'];
+                    MAIN.set('player_list', data['player_list']);
+                    MAIN.set('loading', false);
+                    MAIN.set('turn', data['turn']);
                     MAIN.set('team_list', team_list);
                     MAIN.set('user_team', data['user_team']);
                     MAIN.set('loading_teams', false);
+                    MAIN.set('user_players', data['user_players']);
 
                     var all_ready = true;
-
                     for (var t in team_list) {
                         if (team_list[t].ready == 'False')
                             all_ready = false;
                     }
 
-                    MAIN.set('all_ready', all_ready)
+                    MAIN.set('all_ready', all_ready);
                 }
             }
         );
-    }
-
-    function load_user_team() {
-        $.ajax("{{=URL('default', 'load_user_team', args=[team_id], user_signature=True)}}",
-            {
-                method: 'POST',
-                success: function (data) {
-                    MAIN.set('user_players', data['user_players']);
-                }
-            }
-        );
-    }
-
-    function load_turn() {
-        var all_ready = MAIN.get('all_ready');
-        if (all_ready) {
-            $.ajax("{{=URL('default', 'draft_get_turn', user_signature=True)}}",
-                    {
-                        method: 'POST',
-                        success: function (data) {
-                            MAIN.set('turn', data['turn']);
-                        }
-                    }
-            );
-        }
-    }
-
-    function next_turn() {
-        var all_ready = MAIN.get('all_ready');
-        if (all_ready) {
-            $.ajax("{{=URL('default', 'draft_next_turn', user_signature=True)}}");
-        }
     }
 
     MAIN.on("startdraft", function add_team() {
@@ -248,10 +204,6 @@ $(function() {
                     }
                 }
 
-                if (player.team != null) {
-                    return;
-                }
-
                 var have_pos = false;
                 for (var i in user_players) {
                     if (user_players[i].pos == player.pos) {
@@ -271,27 +223,28 @@ $(function() {
                                         if (player_list[j].id == player.id)
                                             player_list.splice(j, 1);
                                     }
-                                    user_players.append(player);
+                                    var new_player = {
+                                        name: player.name,
+                                        pos: player.pos
+                                    };
+
+                                    user_players.splice(-1, 0, new_player);
+                                    MAIN.set('player_list', player_list);
                                     MAIN.set('user_players', user_players);
+                                    MAIN.set('turn', (turn + 1) % team_list.length);
+                                    
+                                    load_teams();
                                 }
                             }
                     );
-
-                    MAIN.set('turn', turn + 1);
-                    next_turn();
-                    load_teams();
-                    load_players();
-                    load_user_team();
-                    load_turn();
                 } else {
-
                     alert("You already have a " + player.pos);
                 }
-
             } else {
-
                 alert("It's not your turn!");
             }
+        } else {
+            alert("Draft has not started!");
         }
     });
 
@@ -299,16 +252,15 @@ $(function() {
     MAIN.on("nothovering", function(e) { e.node.style.backgroundColor = "#ffffff"; });
 
     MAIN.on("resetdraft", function() {
-        $.ajax("{{=URL('default', 'reset_draft', user_signature=True)}}");
-        load_teams();
-        load_players();
-        load_user_team();
-        load_turn();
+        $.ajax("{{=URL('default', 'reset_draft', user_signature=True)}}",
+                {
+                    success: function() {
+                        load_teams();
+                    }
+                });
+
     });
 
-    setInterval(load_teams, 5000);
-    setInterval(load_players, 5000);
-    setInterval(load_user_team, 5000);
-    setInterval(load_turn, 5000);
+    setInterval(load_teams, 10000);
 });
 </script>
