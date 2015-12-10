@@ -92,15 +92,12 @@ def add_user_player():
     # increment turn
     team_list = db().select(db.team.ALL)
     num_teams = 0
-    print()
     for team in team_list:
         num_teams += 1
 
     row = db().select(db.draft.ALL).first()
     next_turn = int(row.turn)
     next_turn = (next_turn + 1) % num_teams
-    print(num_teams)
-    print(next_turn)
     db.draft.update_or_insert(db.draft.id == row.id,
                               turn=next_turn)
     return "ok"
@@ -182,7 +179,6 @@ def edit_stats():
         response.flash = "Stat fields cannot be empty"
     switch_false()
     return dict(form=form)
-
 
 def switch_true():
     db.player.name.readable = db.player.name.writable = False
